@@ -3,25 +3,39 @@ import { ErrorMessage } from "./ErrorMessage"
 import type { DraftPatient } from "../types"
 import { usePatientStore } from "../store"
 import { useEffect } from "react"
+import { toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 export const PatientForm=() => {
+  const {addPatient, activeId, patients, updatePatient}= usePatientStore()
   
-const {addPatient, activeId, patients}= usePatientStore()
+  const {register,handleSubmit, setValue, formState:{errors},reset} = useForm<DraftPatient>()
+  useEffect(()=>{
+    if(activeId){
+      const activePatient = patients.filter(patient => patient.id === activeId)[0]
+      setValue('name', activePatient.name)
+      setValue('caretaker', activePatient.caretaker)
+      setValue('date', activePatient.date)
+      setValue('email', activePatient.email)
+      setValue('symptoms', activePatient.symptoms)
+    }
+    
+  },[activeId])
   
-const {register,handleSubmit, setValue, formState:{errors},reset} = useForm<DraftPatient>()
-useEffect(()=>{
-  if(activeId){
-    const activePatient = patients.filter(patient => patient.id === activeId)[0]
-    setValue('name', activePatient.name)
-    setValue('caretaker', activePatient.caretaker)
-    setValue('date', activePatient.date)
-    setValue('email', activePatient.email)
-    setValue('symptoms', activePatient.symptoms)
+  const registerPatient = (data: DraftPatient) =>{
+    if(activeId){
+      updatePatient(data)
+      toast.info('Actualizado correctamente',{
+        autoClose:3000,
+        theme: "colored",
+      })
+      
+    }else{
+      addPatient(data)
+      toast.success('Agregado correctamente',{
+        autoClose:3000,
+        theme: "colored",
+      })
   }
-
-},[activeId])
-
-const registerPatient = (data: DraftPatient) =>{
-  addPatient(data)
   reset()
 }
 
